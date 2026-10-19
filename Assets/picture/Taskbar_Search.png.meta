@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 1948a2d620f5d5547b23710a54040f5e
+guid: 6f9f39969189ee9439543cccef4cad54
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -3348817496583370677
-    second: Icon_ItemBoost_0
+      213: 1490421301522304807
+    second: Taskbar_Search_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,13 +100,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Icon_ItemBoost_0
+      name: Taskbar_Search_0
       rect:
         serializedVersion: 2
-        x: 12
-        y: 12
-        width: 488
-        height: 488
+        x: 22
+        y: 19
+        width: 87
+        height: 91
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: b48098aca3c9681d0800000000000000
-      internalID: -3348817496583370677
+      spriteID: 72f89e2f64a0fa410800000000000000
+      internalID: 1490421301522304807
       vertices: []
       indices: 
       edges: []
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Icon_ItemBoost_0: -3348817496583370677
+      Taskbar_Search_0: 1490421301522304807
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
