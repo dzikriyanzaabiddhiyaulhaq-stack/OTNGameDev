@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu(
@@ -18,7 +20,18 @@ public class MissionDefinition : ScriptableObject
     [TextArea(1, 4)]
     public string Hint;
 
-    [Header("Completion")]
-    [TextArea(1, 5)]
+    [Header("Hidden Test Cases")]
+    [Tooltip("Enter each input() value on a separate line.")]
+    public List<MissionTestCase> TestCases =
+        new List<MissionTestCase>();
+}
+
+[Serializable]
+public class MissionTestCase
+{
+    [TextArea(1, 4)]
+    public string Input;
+
+    [TextArea(1, 4)]
     public string ExpectedOutput;
 }
