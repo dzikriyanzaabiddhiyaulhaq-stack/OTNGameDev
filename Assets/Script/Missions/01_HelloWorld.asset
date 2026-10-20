@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 781add4f9a537653f8c643d0ce1e9dc1, type: 3}
+  m_Name: 01_HelloWorld
+  m_EditorClassIdentifier: Assembly-CSharp::MissionDefinition
+  MissionId: 01
+  MissionTitle: Hello, World!
+  Objective: Write and run a Python script that prints Hello, World! to the terminal.
+  Hint: Use the print() function with a string inside quotation marks.
+  ExpectedOutput: Hello, World!

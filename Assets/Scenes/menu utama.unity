@@ -6102,12 +6102,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 49a69dc5d85b49c4691d202886feec87, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MissionManager
-  missionTitle: Hello, World!
-  missionObjective: Write and run a script that prints Hello, World!
-  expectedOutput: Hello, World!
+  missions:
+  - {fileID: 11400000, guid: db30048ae5e69a2f0a960675a8c75987, type: 2}
   titleText: {fileID: 0}
   objectiveText: {fileID: 0}
   feedbackText: {fileID: 0}
+  hintText: {fileID: 0}
 --- !u!4 &1022686123
 Transform:
   m_ObjectHideFlags: 0

@@ -2,57 +2,148 @@ using System;
 using UnityEngine;
 using TMPro;
 using Unity.VisualScripting;
+using System.Collections.Generic;
 
 public class MissionManager : MonoBehaviour
 {
-    [Header("Mission Details")]
-    [SerializeField] private string missionTitle = "Hello, World!";
-    [TextArea(2, 4)]
-    [SerializeField] private string missionObjective = "Write and run a script that prints Hello, World!";
-
-    [TextArea(1, 3)]
-    [SerializeField] private string expectedOutput = "Hello, World!";
+    [Header("Mission Sequence")]
+    [SerializeField] private List<MissionDefinition> missions = new List<MissionDefinition>();
 
     [Header("Mission UI")]
     [SerializeField] private TMP_Text titleText;
     [SerializeField] private TMP_Text objectiveText;
     [SerializeField] private TMP_Text feedbackText;
+    [SerializeField] private TMP_Text hintText;
 
-    public bool isCompleted { get; private set; }
+    public int CurrentMissionIndex { get; private set; }
+    public bool IsCompleted { get; private set; }
+    public bool AllMissionsCompleted { get; private set; }
 
-    public event Action MissionCompleted;
+    public MissionDefinition CurrentMission
+    {
+        get
+        {
+            if (CurrentMissionIndex < 0 || CurrentMissionIndex >= missions.Count)
+            {
+                return null;
+            }
+            return missions[CurrentMissionIndex];
+        }
+    }
+
+    public event Action<MissionDefinition> MissionCompleted;
+    public event Action AllMissionsCompletedEvent;
 
     private void Start()
     {
+        ShowCurrentMission();
+    }
+
+    private void ShowCurrentMission()
+    {
+        MissionDefinition mission = CurrentMission;
+
+        if (mission == null)
+        {
+            if (titleText != null)
+                titleText.text = "No Missions Available";
+
+            if (objectiveText != null)
+                objectiveText.text =
+                    "Add mission assets to the Mission Manager.";
+
+            if (feedbackText != null)
+                feedbackText.text = "";
+
+            if (hintText != null)
+                hintText.text = "";
+
+            return;
+        }
+
         if (titleText != null)
-            titleText.text = missionTitle;
-        
+            titleText.text = mission.MissionTitle;
+
         if (objectiveText != null)
-            objectiveText.text = missionObjective;
+            objectiveText.text = mission.Objective;
 
         if (feedbackText != null)
-            objectiveText.text = "Mission in progress...";
+            feedbackText.text = "Mission in progress.";
+
+        if (hintText != null)
+            hintText.text = "";
+    }
+
+    public void ContinueToNextMission()
+    {
+        if (!IsCompleted || AllMissionsCompleted)
+            return;
+
+        CurrentMissionIndex++;
+        IsCompleted = false;
+
+        if (CurrentMissionIndex >= missions.Count)
+        {
+            AllMissionsCompleted = true;
+
+            if (titleText != null)
+                titleText.text = "All Missions Complete!";
+
+            if (objectiveText != null)
+                objectiveText.text =
+                    "You've completed every available mission.";
+
+            if (feedbackText != null)
+                feedbackText.text = "Congratulations!";
+
+            if (hintText != null)
+                hintText.text = "";
+
+            AllMissionsCompletedEvent?.Invoke();
+            return;
+        }
+
+        ShowCurrentMission();
+    }
+
+    public void ShowHint()
+    {
+        MissionDefinition mission = CurrentMission;
+
+        if (mission == null || hintText == null)
+            return;
+
+        hintText.text = mission.Hint;
     }
 
     public void CheckOutput(string output)
     {
-        if (isCompleted)
+        if (IsCompleted || AllMissionsCompleted)
             return;
 
-        if (Normalize(output) == Normalize(expectedOutput))
+        MissionDefinition mission = CurrentMission;
+
+        if (mission == null)
+            return;
+
+        if (Normalize(output) == Normalize(mission.ExpectedOutput))
         {
-            isCompleted = true;
+            IsCompleted = true;
 
             if (feedbackText != null)
                 feedbackText.text = "Mission complete!";
 
-            MissionCompleted?.Invoke();
-            Debug.Log($"Mission completed: {missionTitle}");
+            MissionCompleted?.Invoke(mission);
+
+            Debug.Log($"Mission completed: {mission.MissionTitle}");
         }
         else
         {
             if (feedbackText != null)
-                feedbackText.text = "Not quite! Check your output and try again.";
+            {
+                feedbackText.text =
+                    "Not quite! Check your output and try again.";
+            }
         }
     }
 
