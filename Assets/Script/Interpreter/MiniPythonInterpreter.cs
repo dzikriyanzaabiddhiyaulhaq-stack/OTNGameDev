@@ -8,6 +8,51 @@ using UnityEngine;
 
 public sealed class MiniPythonInterpreter
 {
+    private sealed class ScriptException : Exception
+    {
+        public int Line { get; }
+
+        public ScriptException(int line, string message) : base(message)
+        {
+            Line = line;
+        }
+    }
+
+    private sealed class SourceLine
+    {
+        public int Number;
+        public int Indent;
+        public string Text;
+    }
+
+    private abstract class Statement
+    {
+        public int Line;
+    }
+
+    private sealed class SimpleStatement : Statement
+    {
+        public string Source;
+    }
+
+    private sealed class IfBranch
+    {
+        public string Condition;
+        public int Line;
+        public List<Statement> Body = new List<Statement>();
+    }
+
+    private sealed class IfStatement : Statement
+    {
+        public List<IfBranch> Branches = new List<IfBranch>();
+    }
+
+    private sealed class WhileStatement : Statement
+    {
+        public string Condition;
+        public List<Statement> Body = new List<Statement>();
+    }
+
     private enum ValueType
     {
         Integer,
@@ -97,32 +142,425 @@ public sealed class MiniPythonInterpreter
         }
     }
 
+    private const int MaxStatementExecutions = 10000;
+    private int statementExecutions;
+
     private readonly Dictionary<string, Value> variables =
         new Dictionary<string, Value>();
 
     public string Run(string source)
     {
         variables.Clear();
+        statementExecutions = 0;
 
-        var output = new StringBuilder();
-        string[] lines = (source ?? "")
+        try
+        {
+            var lines = PrepareSource(source ?? "");
+            int position = 0;
+
+            List<Statement> program = ParseBlock(lines, ref position, 0);
+
+            if (position < lines.Count)
+            {
+                throw new ScriptException(
+                    lines[position].Number,
+                    "Unexpected indentation.");
+            }
+
+            var output = new StringBuilder();
+            ExecuteBlock(program, output);
+
+            return output.ToString();
+        }
+        catch (ScriptException ex)
+        {
+            return $"Line {ex.Line}: {ex.Message}";
+        }
+        catch (Exception ex)
+        {
+            return $"Interpreter error: {ex.Message}";
+        }
+    }
+
+    private List<SourceLine> PrepareSource(string source)
+    {
+        var result = new List<SourceLine>();
+
+        string[] rawLines = source
             .Replace("\r\n", "\n")
             .Replace('\r', '\n')
             .Split('\n');
 
-        for (int i = 0; i < lines.Length; i++)
+        for (int i = 0; i < rawLines.Length; i++)
         {
-            try
+            string raw = rawLines[i];
+
+            if (raw.Contains("\t"))
             {
-                ExecuteLine(lines[i], output);
+                throw new ScriptException(
+                    i + 1,
+                    "Use spaces for indentation, not tabs.");
             }
-            catch (Exception ex)
+
+            int indent = 0;
+
+            while (indent < raw.Length && raw[indent] == ' ')
+                indent++;
+
+            string text = raw.Substring(indent).TrimEnd();
+
+            if (string.IsNullOrWhiteSpace(text) ||
+                text.StartsWith("#"))
             {
-                return $"Line {i + 1}: {ex.Message}";
+                continue;
+            }
+
+            result.Add(new SourceLine
+            {
+                Number = i + 1,
+                Indent = indent,
+                Text = text
+            });
+        }
+        return result;
+    }
+
+    private static bool HasKeyword(string text, string keyword)
+    {
+        return text == keyword ||
+            (text.StartsWith(keyword, StringComparison.Ordinal) &&
+             text.Length > keyword.Length &&
+             (char.IsWhiteSpace(text[keyword.Length]) ||
+              text[keyword.Length] == ':'));
+    }
+
+    private List<Statement> ParseBlock(
+        List<SourceLine> lines,
+        ref int position,
+        int expectedIndent)
+        {
+            var statements = new List<Statement>();
+
+            while (position < lines.Count)
+            {
+                SourceLine line = lines[position];
+
+                if (line.Indent < expectedIndent)
+                    break;
+
+                if (line.Indent > expectedIndent)
+                {
+                    throw new ScriptException(
+                        line.Number,
+                        "Indent blocks using exactly 4 spaces per level.");
+                }
+
+                if (HasKeyword(line.Text, "elif") ||
+                    HasKeyword(line.Text, "else"))
+                {
+                    throw new ScriptException(
+                        line.Number,
+                        $"'{line.Text.Split(' ')[0]}' has no matching 'if'.");
+                }
+
+                if (HasKeyword(line.Text, "if"))
+                {
+                    statements.Add(ParseIfStatement(lines, ref position));
+                    continue;
+                }
+
+                if (HasKeyword(line.Text, "while"))
+                {
+                    statements.Add(ParseWhileStatement(lines, ref position));
+                    continue;
+                }
+
+                statements.Add(new SimpleStatement
+                {
+                    Line = line.Number,
+                    Source = line.Text
+                });
+
+                position++;
+            }
+        return statements;
+    }
+
+    private IfStatement ParseIfStatement(
+        List<SourceLine> lines,
+        ref int position)
+    {
+        SourceLine firstLine = lines[position];
+        int baseIndent = firstLine.Indent;
+
+        var result = new IfStatement
+        {
+            Line = firstLine.Number
+        };
+
+        bool sawElse = false;
+
+        while (position < lines.Count)
+        {
+            SourceLine header = lines[position];
+
+            if (header.Indent != baseIndent)
+                break;
+
+            bool isIf = HasKeyword(header.Text, "if");
+            bool isElif = HasKeyword(header.Text, "elif");
+            bool isElse = HasKeyword(header.Text, "else");
+
+            if (!isIf && !isElif && !isElse)
+                break;
+
+            if (result.Branches.Count == 0 && !isIf)
+            {
+                throw new ScriptException(
+                    header.Number,
+                    "A conditional chain must begin with 'if'.");
+            }
+
+            if (result.Branches.Count > 0 && isIf)
+                break;
+
+            if (sawElse)
+            {
+                throw new ScriptException(
+                    header.Number,
+                    "'elif' or 'else' cannot follow 'else'.");
+            }
+
+            string condition = null;
+
+            if (isElse)
+            {
+                if (header.Text != "else:")
+                {
+                    throw new ScriptException(
+                        header.Number,
+                        "Expected 'else:'.");
+                }
+
+                sawElse = true;
+            }
+            else
+            {
+                string keyword = isIf ? "if" : "elif";
+
+                if (!header.Text.EndsWith(":"))
+                {
+                    throw new ScriptException(
+                        header.Number,
+                        $"Expected ':' after '{keyword}' condition.");
+                }
+
+                condition = header.Text.Substring(
+                    keyword.Length,
+                    header.Text.Length - keyword.Length - 1
+                ).Trim();
+
+                if (condition.Length == 0)
+                {
+                    throw new ScriptException(
+                        header.Number,
+                        $"Expected a condition after '{keyword}'.");
+                }
+            }
+
+            position++;
+
+            if (position >= lines.Count ||
+                lines[position].Indent <= baseIndent)
+            {
+                throw new ScriptException(
+                    header.Number,
+                    "Expected an indented block after conditional.");
+            }
+
+            if (lines[position].Indent != baseIndent + 4)
+            {
+                throw new ScriptException(
+                    lines[position].Number,
+                    "Indent blocks using exactly 4 spaces per level.");
+            }
+
+            List<Statement> body = ParseBlock(
+                lines, ref position, baseIndent + 4);
+
+            if (body.Count == 0)
+            {
+                throw new ScriptException(
+                    header.Number,
+                    "Conditional block cannot be empty.");
+            }
+
+            result.Branches.Add(new IfBranch
+            {
+                Condition = condition,
+                Line = header.Number,
+                Body = body
+            });
+
+            if (sawElse)
+                break;
+
+            // Consume another elif/else only if it is at
+            // the same indentation level.
+            if (position >= lines.Count ||
+                lines[position].Indent != baseIndent ||
+                (!HasKeyword(lines[position].Text, "elif") &&
+                 !HasKeyword(lines[position].Text, "else")))
+            {
+                break;
             }
         }
 
-        return output.ToString();
+        // An else branch must be last, even if another branch
+        // follows after the else body.
+        if (sawElse && position < lines.Count &&
+            lines[position].Indent == baseIndent &&
+            (HasKeyword(lines[position].Text, "elif") ||
+             HasKeyword(lines[position].Text, "else")))
+        {
+            throw new ScriptException(
+                lines[position].Number,
+                "'elif' or 'else' cannot follow 'else'.");
+        }
+
+        return result;
+    }
+
+    private WhileStatement ParseWhileStatement(
+        List<SourceLine> lines,
+        ref int position)
+    {
+        SourceLine header = lines[position];
+        int baseIndent = header.Indent;
+
+        if (!header.Text.EndsWith(":"))
+        {
+            throw new ScriptException(
+                header.Number,
+                "Expected ':' after 'while' condition.");
+        }
+
+        string condition = header.Text.Substring(
+            "while".Length,
+            header.Text.Length - "while".Length - 1
+        ).Trim();
+
+        if (condition.Length == 0)
+        {
+            throw new ScriptException(
+                header.Number,
+                "Expected a condition after 'while'.");
+        }
+
+        position++;
+
+        if (position >= lines.Count ||
+            lines[position].Indent <= baseIndent)
+        {
+            throw new ScriptException(
+                header.Number,
+                "Expected an indented block after while.");
+        }
+
+        if (lines[position].Indent != baseIndent + 4)
+        {
+            throw new ScriptException(
+                lines[position].Number,
+                "Indent blocks using exactly 4 spaces per level.");
+        }
+
+        List<Statement> body = ParseBlock(
+            lines, ref position, baseIndent + 4);
+
+        if (body.Count == 0)
+        {
+            throw new ScriptException(
+                header.Number,
+                "While block cannot be empty.");
+        }
+
+        return new WhileStatement
+        {
+            Line = header.Number,
+            Condition = condition,
+            Body = body
+        };
+    }
+
+    private bool EvaluateCondition(string expression)
+    {
+        List<Token> tokens = Tokenize(expression);
+        var parser = new Parser(tokens, variables);
+
+        Value value = parser.ParseExpression();
+        parser.ExpectEnd();
+
+        if (value.Type != ValueType.Boolean)
+        {
+            throw new Exception(
+                "Conditional expressions must evaluate to True or False.");
+        }
+
+        return value.AsBool();
+    }
+
+    private void ExecuteBlock(
+        List<Statement> statements,
+        StringBuilder output)
+    {
+        foreach (Statement statement in statements)
+        {
+            statementExecutions++;
+
+            if (statementExecutions > MaxStatementExecutions)
+            {
+                throw new ScriptException(
+                    statement.Line,
+                    "Execution limit exceeded. Check for an infinite loop.");
+            }
+
+            try
+            {
+                if (statement is SimpleStatement simple)
+                {
+                    ExecuteLine(simple.Source, output);
+                }
+                else if (statement is IfStatement conditional)
+                {
+                    foreach (IfBranch branch in conditional.Branches)
+                    {
+                        bool matches = branch.Condition == null ||
+                            EvaluateCondition(branch.Condition);
+
+                        if (matches)
+                        {
+                            ExecuteBlock(branch.Body, output);
+                            break;
+                        }
+                    }
+                }
+                else if (statement is WhileStatement loop)
+                {
+                    while (EvaluateCondition(loop.Condition))
+                    {
+                        ExecuteBlock(loop.Body, output);
+                    }
+                }
+            }
+            catch (ScriptException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new ScriptException(statement.Line, ex.Message);
+            }
+        }
     }
 
     private void ExecuteLine(string source, StringBuilder output)
