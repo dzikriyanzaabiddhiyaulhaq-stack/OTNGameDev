@@ -47,6 +47,12 @@ public sealed class MiniPythonInterpreter
         public List<IfBranch> Branches = new List<IfBranch>();
     }
 
+    private sealed class WhileStatement : Statement
+    {
+        public string Condition;
+        public List<Statement> Body = new List<Statement>();
+    }
+
     private enum ValueType
     {
         Integer,
@@ -136,12 +142,16 @@ public sealed class MiniPythonInterpreter
         }
     }
 
+    private const int MaxStatementExecutions = 10000;
+    private int statementExecutions;
+
     private readonly Dictionary<string, Value> variables =
         new Dictionary<string, Value>();
 
     public string Run(string source)
     {
         variables.Clear();
+        statementExecutions = 0;
 
         try
         {
@@ -256,6 +266,12 @@ public sealed class MiniPythonInterpreter
                 if (HasKeyword(line.Text, "if"))
                 {
                     statements.Add(ParseIfStatement(lines, ref position));
+                    continue;
+                }
+
+                if (HasKeyword(line.Text, "while"))
+                {
+                    statements.Add(ParseWhileStatement(lines, ref position));
                     continue;
                 }
 
@@ -415,6 +431,67 @@ public sealed class MiniPythonInterpreter
         return result;
     }
 
+    private WhileStatement ParseWhileStatement(
+        List<SourceLine> lines,
+        ref int position)
+    {
+        SourceLine header = lines[position];
+        int baseIndent = header.Indent;
+
+        if (!header.Text.EndsWith(":"))
+        {
+            throw new ScriptException(
+                header.Number,
+                "Expected ':' after 'while' condition.");
+        }
+
+        string condition = header.Text.Substring(
+            "while".Length,
+            header.Text.Length - "while".Length - 1
+        ).Trim();
+
+        if (condition.Length == 0)
+        {
+            throw new ScriptException(
+                header.Number,
+                "Expected a condition after 'while'.");
+        }
+
+        position++;
+
+        if (position >= lines.Count ||
+            lines[position].Indent <= baseIndent)
+        {
+            throw new ScriptException(
+                header.Number,
+                "Expected an indented block after while.");
+        }
+
+        if (lines[position].Indent != baseIndent + 4)
+        {
+            throw new ScriptException(
+                lines[position].Number,
+                "Indent blocks using exactly 4 spaces per level.");
+        }
+
+        List<Statement> body = ParseBlock(
+            lines, ref position, baseIndent + 4);
+
+        if (body.Count == 0)
+        {
+            throw new ScriptException(
+                header.Number,
+                "While block cannot be empty.");
+        }
+
+        return new WhileStatement
+        {
+            Line = header.Number,
+            Condition = condition,
+            Body = body
+        };
+    }
+
     private bool EvaluateCondition(string expression)
     {
         List<Token> tokens = Tokenize(expression);
@@ -438,6 +515,15 @@ public sealed class MiniPythonInterpreter
     {
         foreach (Statement statement in statements)
         {
+            statementExecutions++;
+
+            if (statementExecutions > MaxStatementExecutions)
+            {
+                throw new ScriptException(
+                    statement.Line,
+                    "Execution limit exceeded. Check for an infinite loop.");
+            }
+
             try
             {
                 if (statement is SimpleStatement simple)
@@ -456,6 +542,13 @@ public sealed class MiniPythonInterpreter
                             ExecuteBlock(branch.Body, output);
                             break;
                         }
+                    }
+                }
+                else if (statement is WhileStatement loop)
+                {
+                    while (EvaluateCondition(loop.Condition))
+                    {
+                        ExecuteBlock(loop.Body, output);
                     }
                 }
             }
