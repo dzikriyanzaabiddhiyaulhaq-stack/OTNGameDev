@@ -4,6 +4,7 @@ using System.Data;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Globalization;
+using System.Linq;
 using UnityEngine;
 
 public sealed class MiniPythonInterpreter
@@ -50,6 +51,13 @@ public sealed class MiniPythonInterpreter
     private sealed class WhileStatement : Statement
     {
         public string Condition;
+        public List<Statement> Body = new List<Statement>();
+    }
+
+    private sealed class ForStatement : Statement
+    {
+        public string Variable;
+        public List<string> RangeArguments = new List<string>();
         public List<Statement> Body = new List<Statement>();
     }
 
@@ -275,6 +283,12 @@ public sealed class MiniPythonInterpreter
                     continue;
                 }
 
+                if (HasKeyword(line.Text, "for"))
+                {
+                    statements.Add(ParseForStatement(lines, ref position));
+                    continue;
+                }
+
                 statements.Add(new SimpleStatement
                 {
                     Line = line.Number,
@@ -492,6 +506,151 @@ public sealed class MiniPythonInterpreter
         };
     }
 
+    private ForStatement ParseForStatement(
+        List<SourceLine> lines,
+        ref int position)
+    {
+        SourceLine header = lines[position];
+        int baseIndent = header.Indent;
+
+        // Parse the header in separate steps rather than relying on one
+        // regular expression. This also makes nested loop headers behave
+        // consistently when ParseBlock recursively parses their bodies.
+        string headerText = header.Text.Trim();
+        const string forPrefix = "for ";
+        const string rangeMarker = " in range";
+
+        int rangeMarkerIndex = headerText.IndexOf(
+            rangeMarker, StringComparison.Ordinal);
+        int openingParen = -1;
+
+        if (rangeMarkerIndex >= 0)
+        {
+            int afterRange = rangeMarkerIndex + rangeMarker.Length;
+
+            // Allow whitespace between "range" and "(".
+            while (afterRange < headerText.Length &&
+            char.IsWhiteSpace(headerText[afterRange]))
+            {
+                afterRange++;
+            }
+
+            if (afterRange < headerText.Length &&
+                headerText[afterRange] == '(')
+            {
+                openingParen = afterRange;
+            }
+        }
+
+
+        int closingParen = headerText.Length >= 2
+            ? headerText.LastIndexOf(')')
+            : -1;
+
+        bool validHeader =
+            headerText.StartsWith(forPrefix, StringComparison.Ordinal) &&
+            headerText.EndsWith(":", StringComparison.Ordinal) &&
+            rangeMarkerIndex > forPrefix.Length &&
+            openingParen >= 0 &&
+            closingParen == headerText.Length - 2 &&
+            closingParen > openingParen;
+
+        if (!validHeader)
+        {
+            throw new ScriptException(
+            header.Number,
+            $"Invalid for header: [{headerText}] " +
+            $"Length={headerText.Length}, " +
+            $"StartsWith={headerText.StartsWith(forPrefix, StringComparison.Ordinal)}, " +
+            $"EndsWith={headerText.EndsWith(":", StringComparison.Ordinal)}, " +
+            $"rangeMarkerIndex={rangeMarkerIndex}, " +
+            $"openingParen={openingParen}, " +
+            $"closingParen={closingParen}");
+        }
+
+        string variable = headerText.Substring(
+            forPrefix.Length, rangeMarkerIndex - forPrefix.Length).Trim();
+
+        if (!Regex.IsMatch(variable, @"^[A-Za-z_][A-Za-z0-9_]*$",
+            RegexOptions.CultureInvariant))
+        {
+            throw new ScriptException(
+                header.Number,
+                "Expected a valid loop variable name.");
+        }
+        if (variable == "True" || variable == "False" ||
+            variable == "and" || variable == "or" || variable == "not" ||
+            variable == "if" || variable == "elif" || variable == "else" ||
+            variable == "while" || variable == "for" || variable == "in" ||
+            variable == "range")
+        {
+            throw new ScriptException(
+                header.Number,
+                $"'{variable}' is a reserved word and cannot be used as a loop variable.");
+        }
+
+        string argumentsText = headerText.Substring(
+            openingParen + 1, closingParen - openingParen - 1).Trim();
+        string[] arguments = argumentsText.Split(',');
+        if (arguments.Length < 1 || arguments.Length > 3 ||
+            arguments.Any(argument => string.IsNullOrWhiteSpace(argument)))
+        {
+            throw new ScriptException(
+                header.Number,
+                "range() expects one, two, or three arguments.");
+        }
+
+        position++;
+
+        if (position >= lines.Count ||
+            lines[position].Indent <= baseIndent)
+        {
+            throw new ScriptException(
+                header.Number,
+                "Expected an indented block after for.");
+        }
+
+        if (lines[position].Indent != baseIndent + 4)
+        {
+            throw new ScriptException(
+                lines[position].Number,
+                "Indent blocks using exactly 4 spaces per level.");
+        }
+
+        List<Statement> body = ParseBlock(
+            lines, ref position, baseIndent + 4);
+
+        if (body.Count == 0)
+        {
+            throw new ScriptException(
+                header.Number,
+                "For block cannot be empty.");
+        }
+
+        return new ForStatement
+        {
+            Line = header.Number,
+            Variable = variable,
+            RangeArguments = arguments.Select(argument => argument.Trim()).ToList(),
+            Body = body
+        };
+    }
+
+    private long EvaluateIntegerExpression(string expression)
+    {
+        List<Token> tokens = Tokenize(expression);
+        var parser = new Parser(tokens, variables);
+        Value value = parser.ParseExpression();
+        parser.ExpectEnd();
+
+        if (value.Type != ValueType.Integer)
+        {
+            throw new Exception("range() arguments must be integers.");
+        }
+
+        return value.AsInt();
+    }
+
     private bool EvaluateCondition(string expression)
     {
         List<Token> tokens = Tokenize(expression);
@@ -549,6 +708,47 @@ public sealed class MiniPythonInterpreter
                     while (EvaluateCondition(loop.Condition))
                     {
                         ExecuteBlock(loop.Body, output);
+                    }
+                }
+                else if (statement is ForStatement forLoop)
+                {
+                    long start;
+                    long stop;
+                    long step;
+
+                    if (forLoop.RangeArguments.Count == 1)
+                    {
+                        start = 0;
+                        stop = EvaluateIntegerExpression(forLoop.RangeArguments[0]);
+                        step = 1;
+                    }
+                    else
+                    {
+                        start = EvaluateIntegerExpression(forLoop.RangeArguments[0]);
+                        stop = EvaluateIntegerExpression(forLoop.RangeArguments[1]);
+                        step = forLoop.RangeArguments.Count == 3
+                            ? EvaluateIntegerExpression(forLoop.RangeArguments[2])
+                            : 1;
+                    }
+
+                    if (step == 0)
+                    {
+                        throw new Exception("range() step cannot be zero.");
+                    }
+
+                    long index = start;
+                    while (step > 0 ? index < stop : index > stop)
+                    {
+                        variables[forLoop.Variable] = Value.Int(index);
+                        ExecuteBlock(forLoop.Body, output);
+
+                        // Avoid overflowing after the final useful iteration.
+                        if (step > 0 && index > long.MaxValue - step)
+                            break;
+                        if (step < 0 && index < long.MinValue - step)
+                            break;
+
+                        index += step;
                     }
                 }
             }
