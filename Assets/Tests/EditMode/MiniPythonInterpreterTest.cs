@@ -37,7 +37,7 @@ public class MiniPythonInterpreterTest
     [TestCase("score = 100\nprint(score)", "100\n")]
     [TestCase("score = 10\nscore = score + 5\nprint(score)", "15\n")]
     [TestCase("a = 4\nb = 5\nprint(a * b)", "20\n")]
-    [TestCase("x = 8\ny = x / 2\nprint(y)", "4\n")]
+    [TestCase("x = 8\ny = x / 2\nprint(y)", "4.0\n")]
     public void VariablesWorks(string code, string expected)
     {
         ExpectedOutput(code, expected);
@@ -122,11 +122,64 @@ public class MiniPythonInterpreterTest
     [Test]
     public void ForLoopCanUseIfStatements()
     {
-    ExpectedOutput(
-        "for i in range(4):\n" +
-        "    if i % 2 == 0:\n" +
-        "        print(i)",
-        "0\n2\n");
+        ExpectedOutput(
+            "for i in range(4):\n" +
+            "    if i % 2 == 0:\n" +
+            "        print(i)",
+            "0\n2\n");
+    }
+    
+    // Input Integer
+    [Test]
+    public void InputIntWorks()
+    {
+        string code =
+            "first = int(input())\n" +
+            "second = int(input())\n" +
+            "print(first + second)";
+
+        string result = interpreter.Run(
+            code,
+            new string[] { "7", "3" }
+        );
+
+        Assert.AreEqual("10\n", result);
+    }
+
+    [Test]
+    public void InputFloatWorks()
+    {
+        string code =
+        "price = float(input())\n" +
+        "print(price * 2)";
+
+        string result = interpreter.Run(
+            code,
+            new string[] { "2.5" }
+        );
+
+        Assert.AreEqual("5.0\n", result);
+    }
+
+    [Test]
+    public void FloatPreservesDecimalType()
+    {
+        string result = interpreter.Run(
+        "print(float(\"2\"))"
+        );
+
+        Assert.AreEqual("2.0\n", result);
+    }
+
+    [Test]
+    public void InputCanBeUsedDirectlyAsString()
+    {
+        string result = interpreter.Run(
+            "name = input()\nprint(name)",
+            new string[] { "Kancil" }
+        );
+
+        Assert.AreEqual("Kancil\n", result);
     }
 
     // 10. Comments and Multiple Statements
@@ -219,5 +272,19 @@ public class MiniPythonInterpreterTest
             "for i in range(100000):\n    print(i)");
 
         StringAssert.Contains("Execution limit exceeded", result);
+    }
+
+    [Test]
+    public void InputWithoutEnoughValuesReportsError()
+    {
+        string result = interpreter.Run(
+            "first = input()\nsecond = input()",
+            new string[] { "hello" }
+        );
+
+        StringAssert.Contains(
+            "input() requested more values",
+            result
+        );
     }
 }

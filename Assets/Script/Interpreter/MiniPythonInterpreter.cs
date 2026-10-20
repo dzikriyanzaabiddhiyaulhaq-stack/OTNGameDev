@@ -110,8 +110,18 @@ public sealed class MiniPythonInterpreter
                         CultureInfo.InvariantCulture);
 
                 case ValueType.Float:
-                    return AsNumber().ToString(
-                        "G", CultureInfo.InvariantCulture);
+                    string formatted = AsNumber().ToString(
+                    "G", CultureInfo.InvariantCulture);
+
+                    // Keep the decimal point for whole-number floats.
+                    if (!formatted.Contains(".") &&
+                        !formatted.Contains("E") &&
+                        !formatted.Contains("e"))
+                    {
+                        formatted += ".0";
+                    }
+
+                    return formatted;
 
                 case ValueType.String:
                     return AsString();
@@ -153,13 +163,25 @@ public sealed class MiniPythonInterpreter
     private const int MaxStatementExecutions = 10000;
     private int statementExecutions;
 
+    // Inputs are supplied by the game for each run/test case.
+    private IReadOnlyList<string> inputValues = Array.Empty<string>();
+    private int inputIndex;
+
     private readonly Dictionary<string, Value> variables =
         new Dictionary<string, Value>();
 
     public string Run(string source)
     {
+        return Run(source, Array.Empty<string>());
+    }
+
+    // Runs a script with the values that input() should read, in order.
+    public string Run(string source, IReadOnlyList<string> inputs)
+    {
         variables.Clear();
         statementExecutions = 0;
+        inputValues = inputs ?? Array.Empty<string>();
+        inputIndex = 0;
 
         try
         {
@@ -188,6 +210,14 @@ public sealed class MiniPythonInterpreter
         {
             return $"Interpreter error: {ex.Message}";
         }
+    }
+
+    private string ReadInput()
+    {
+        if (inputIndex >= inputValues.Count)
+            throw new Exception("input() requested more values than this test provides.");
+
+        return inputValues[inputIndex++];
     }
 
     private List<SourceLine> PrepareSource(string source)
@@ -633,7 +663,7 @@ public sealed class MiniPythonInterpreter
     private long EvaluateIntegerExpression(string expression)
     {
         List<Token> tokens = Tokenize(expression);
-        var parser = new Parser(tokens, variables);
+        var parser = new Parser(tokens, variables, ReadInput);
         Value value = parser.ParseExpression();
         parser.ExpectEnd();
 
@@ -648,7 +678,7 @@ public sealed class MiniPythonInterpreter
     private bool EvaluateCondition(string expression)
     {
         List<Token> tokens = Tokenize(expression);
-        var parser = new Parser(tokens, variables);
+        var parser = new Parser(tokens, variables, ReadInput);
 
         Value value = parser.ParseExpression();
         parser.ExpectEnd();
@@ -768,7 +798,7 @@ public sealed class MiniPythonInterpreter
         if (tokens[0].Type == TokenType.Identifier &&
             tokens[0].Text == "print")
         {
-            var parser = new Parser(tokens, variables);
+            var parser = new Parser(tokens, variables, ReadInput);
 
             parser.ExpectIdentifier("print");
             parser.Expect(TokenType.LeftParen, "(");
@@ -797,7 +827,7 @@ public sealed class MiniPythonInterpreter
                     $"'{name}' is a reserved word.");
             }
 
-            var parser = new Parser(tokens, variables);
+            var parser = new Parser(tokens, variables, ReadInput);
             parser.ExpectIdentifier(name);
             parser.ExpectOperator("=");
 
@@ -975,14 +1005,17 @@ public sealed class MiniPythonInterpreter
     {
         private readonly List<Token> tokens;
         private readonly Dictionary<string, Value> variables;
+        private readonly Func<string> inputReader;
         private int position;
 
         public Parser(
             List<Token> tokens,
-            Dictionary<string, Value> variables)
+            Dictionary<string, Value> variables,
+            Func<string> inputReader)
         {
             this.tokens = tokens;
             this.variables = variables;
+            this.inputReader = inputReader;
         }
 
         private Token Current => tokens[position];
@@ -1231,6 +1264,31 @@ public sealed class MiniPythonInterpreter
         {
             Token token = Current;
 
+            // Small built-ins needed for beginner input-processing missions:
+            // input(), int(expression), and float(expression).
+            if (token.Type == TokenType.Identifier &&
+                (token.Text == "input" || token.Text == "int" || token.Text == "float") &&
+                position + 1 < tokens.Count &&
+                tokens[position + 1].Type == TokenType.LeftParen)
+            {
+                Advance();
+                Expect(TokenType.LeftParen, "(");
+
+                if (token.Text == "input")
+                {
+                    Expect(TokenType.RightParen, ")");
+                    return Value.Str(inputReader());
+                }
+
+                Value argument = ParseExpression();
+                Expect(TokenType.RightParen, ")");
+
+                if (token.Text == "int")
+                    return ConvertToInteger(argument);
+
+                return ConvertToFloat(argument);
+            }
+
             if (token.Type == TokenType.Number)
             {
                 Advance();
@@ -1337,10 +1395,24 @@ public sealed class MiniPythonInterpreter
 
             switch (op)
             {
-                case "+": return MakeNumber(x + y);
-                case "-": return MakeNumber(x - y);
-                case "*": return MakeNumber(x * y);
-            }
+                case "+":
+                return left.Type == ValueType.Float ||
+                    right.Type == ValueType.Float
+                ? Value.Float(x + y)
+                : MakeNumber(x + y);
+
+                case "-":
+                return left.Type == ValueType.Float ||
+                    right.Type == ValueType.Float
+                ? Value.Float(x - y)
+                : MakeNumber(x - y);
+
+                case "*":
+                return left.Type == ValueType.Float ||
+                   right.Type == ValueType.Float
+                ? Value.Float(x * y)
+                : MakeNumber(x * y);
+        }
 
             throw new Exception($"Unsupported operator '{op}'.");
         }
@@ -1372,6 +1444,50 @@ public sealed class MiniPythonInterpreter
                     $"Operator '{op}' requires Boolean values.");
 
             return value.AsBool();
+        }
+
+        private static Value ConvertToInteger(Value value)
+        {
+            if (value.Type == ValueType.Integer)
+                return value;
+
+            if (value.Type == ValueType.Boolean)
+                return Value.Int(value.AsBool() ? 1 : 0);
+
+            if (value.Type == ValueType.Float)
+            {
+                double number = value.AsNumber();
+                if (double.IsNaN(number) || double.IsInfinity(number) ||
+                    number < -9223372036854775808.0 ||
+                    number >= 9223372036854775808.0)
+                    throw new Exception("int() value is outside the supported integer range.");
+
+                return Value.Int((long)Math.Truncate(number));
+            }
+
+            if (value.Type == ValueType.String &&
+                long.TryParse(value.AsString().Trim(), NumberStyles.AllowLeadingSign,
+                    CultureInfo.InvariantCulture, out long parsed))
+                return Value.Int(parsed);
+
+            throw new Exception("int() requires a whole-number string or a numeric value.");
+        }
+
+        private static Value ConvertToFloat(Value value)
+        {
+            if (value.IsNumber)
+                return Value.Float(value.AsNumber());
+
+            if (value.Type == ValueType.Boolean)
+                return Value.Float(value.AsBool() ? 1.0 : 0.0);
+
+            if (value.Type == ValueType.String &&
+                double.TryParse(value.AsString().Trim(), NumberStyles.Float,
+                    CultureInfo.InvariantCulture, out double parsed) &&
+                !double.IsNaN(parsed) && !double.IsInfinity(parsed))
+                return Value.Float(parsed);
+
+            throw new Exception("float() requires a numeric string or a numeric value.");
         }
 
         private bool IsOperator(string op) =>
