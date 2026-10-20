@@ -1,10 +1,13 @@
 using TMPro;
+using UnityEditor;
 using UnityEngine;
 
 public class InterpreterTest : MonoBehaviour
 {
     [SerializeField] private TMP_InputField CodeInput;
     [SerializeField] private TMP_Text OutputText;
+
+    [SerializeField] private MissionManager MissionManager;
 
     private MiniPythonInterpreter interpreter = new MiniPythonInterpreter();
 
@@ -21,5 +24,10 @@ public class InterpreterTest : MonoBehaviour
         OutputText.text = string.IsNullOrEmpty(result)
         ? "(No output produced)"
         : result;
+
+        if (MissionManager != null)
+        {
+            MissionManager.CheckOutput(result);
+        }
     }
 }
