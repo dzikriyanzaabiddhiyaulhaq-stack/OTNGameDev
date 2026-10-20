@@ -100,7 +100,36 @@ public class MiniPythonInterpreterTest
         ExpectedOutput(code, expected);
     }
 
-    // 7. Comments and Multiple Statements
+    // 7. For Loop and Range
+    [TestCase("for i in range(5):\n    print(i)", "0\n1\n2\n3\n4\n")]
+    [TestCase("for i in range(2, 5):\n    print(i)", "2\n3\n4\n")]
+    [TestCase("for i in range(5, 0, -2):\n    print(i)", "5\n3\n1\n")]
+    [TestCase("for i in range(0):\n    print(i)\nprint(\"done\")", "done\n")]
+    [TestCase("limit = 3\nfor i in range(limit):\n    print(i + 10)", "10\n11\n12\n")]
+    public void ForLoopsAndRangeWorks(string code, string expected)
+    {
+        ExpectedOutput(code, expected);
+    }
+
+    // 8. Nested For Loops
+    [TestCase("for i in range (2):\n    for j in range(2):\n        print(i * 10 + j)", "0\n1\n10\n11\n")]
+    public void NestedForLoopsWorks(string code, string expected)
+    {
+        ExpectedOutput(code, expected);
+    }
+
+    // 9. For Loops And If Statements
+    [Test]
+    public void ForLoopCanUseIfStatements()
+    {
+    ExpectedOutput(
+        "for i in range(4):\n" +
+        "    if i % 2 == 0:\n" +
+        "        print(i)",
+        "0\n2\n");
+    }
+
+    // 10. Comments and Multiple Statements
     [TestCase("# comment\nprint(7)", "7\n")]
     [TestCase("x = 5 # assign a value\nprint(x)", "5\n")]
     [TestCase("print(1)\nprint(2)\nprint(3)", "1\n2\n3\n")]
@@ -139,11 +168,23 @@ public class MiniPythonInterpreterTest
     }
 
     // 3. Invalid While Loops
-
     [TestCase("while True\n    print(\"hello\")", "Expected ':'")]
     [TestCase("while True:", "Expected an indented block")]
     [TestCase("while 5:\n    print(\"hello\")", "must evaluate to True or False")]
     public void InvalidWhileLoopsReportsErrors(string code, string expected)
+    {
+        string result = interpreter.Run(code);
+        StringAssert.Contains(expected, result);
+    }
+
+    // 4. Invalid For Loops
+    [TestCase("for i in range(3)", "Expected 'for variable in range(...):'")]
+    [TestCase("for i in range():", "range() expects")]
+    [TestCase("for i in range(1, 2, 3, 4):", "range() expects")]
+    [TestCase("for i in range(3, 0, 0):\n    print(i)", "step cannot be zero")]
+    [TestCase("for i in range(3.5):\n    print(i)", "must be integers")]
+    [TestCase("for i in range(3):", "Expected an indented block")]
+    public void InvalidForLoopsReportsError(string code, string expected)
     {
         string result = interpreter.Run(code);
         StringAssert.Contains(expected, result);
@@ -164,9 +205,19 @@ public class MiniPythonInterpreterTest
         StringAssert.Contains("Line 1:", result);
     }
 
+    [Test]
     public void InfiniteWhileLoopsAtExecutionLimits()
     {
         string result = interpreter.Run("while True:\n    print(\"loop\")");
+        StringAssert.Contains("Execution limit exceeded", result);
+    }
+
+    [Test]
+    public void LargeForLoopRespectsExecutionLimit()
+    {
+        string result = interpreter.Run(
+            "for i in range(100000):\n    print(i)");
+
         StringAssert.Contains("Execution limit exceeded", result);
     }
 }
