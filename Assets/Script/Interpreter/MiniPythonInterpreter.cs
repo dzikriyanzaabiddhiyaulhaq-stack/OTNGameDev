@@ -559,13 +559,7 @@ public sealed class MiniPythonInterpreter
         {
             throw new ScriptException(
             header.Number,
-            $"Invalid for header: [{headerText}] " +
-            $"Length={headerText.Length}, " +
-            $"StartsWith={headerText.StartsWith(forPrefix, StringComparison.Ordinal)}, " +
-            $"EndsWith={headerText.EndsWith(":", StringComparison.Ordinal)}, " +
-            $"rangeMarkerIndex={rangeMarkerIndex}, " +
-            $"openingParen={openingParen}, " +
-            $"closingParen={closingParen}");
+            "Expected 'for variable in range(...):'.");
         }
 
         string variable = headerText.Substring(
