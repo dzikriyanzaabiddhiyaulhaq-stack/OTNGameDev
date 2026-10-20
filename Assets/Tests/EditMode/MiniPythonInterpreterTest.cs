@@ -71,7 +71,27 @@ public class MiniPythonInterpreterTest
         ExpectedOutput(code, expected);
     }
 
-    // 5. Comments and Multiple Statements
+    // 5. Conditionals
+    [TestCase(
+    "if True:\n    print(\"yes\")", "yes\n")]
+    [TestCase(
+    "if False:\n    print(\"yes\")\nelse:\n    print(\"no\")", "no\n")]
+    [TestCase(
+    "score = 75\nif score >= 50:\n    print(\"pass\")", "pass\n")]
+    [TestCase(
+    "score = 30\nif score >= 50:\n    print(\"pass\")\nelse:\n    print(\"fail\")", "fail\n")]
+    [TestCase(
+    "score = 50\nif score > 50:\n    print(\"high\")\nelif score == 50:\n    print(\"exact\")\nelse:\n    print(\"low\")", "exact\n")]
+    [TestCase(
+    "if True:\n    if False:\n        print(\"wrong\")\n    else:\n        print(\"nested\")", "nested\n")]
+    [TestCase(
+    "if False:\n    print(\"first\")\nelif True:\n    print(\"second\")\nelif True:\n    print(\"third\")\nelse:\n    print(\"last\")", "second\n")]
+    public void ConditionalsWorks(string code, string expected)
+    {
+        ExpectedOutput(code, expected);
+    }
+
+    // 6. Comments and Multiple Statements
     [TestCase("# comment\nprint(7)", "7\n")]
     [TestCase("x = 5 # assign a value\nprint(x)", "5\n")]
     [TestCase("print(1)\nprint(2)\nprint(3)", "1\n2\n3\n")]
@@ -80,7 +100,7 @@ public class MiniPythonInterpreterTest
         ExpectedOutput(code, expected);
     }
 
-    // 6. Invalid Codes
+    // 7. Invalid Codes
     [TestCase("print(missing)", "Variable 'missing' is not defined.")]
     [TestCase("print(5 / 0)", "Division by zero.")]
     [TestCase("print(\"hello\" - \"world\")", "Operator '-' requires numbers.")]
@@ -94,7 +114,21 @@ public class MiniPythonInterpreterTest
         StringAssert.Contains(expected, result);
     }
 
-    // A Test behaves as an ordinary method
+    // 8. Invalid Conditionals
+    [TestCase("if True\n    print(\"yes\")", "Expected ':'")]
+    [TestCase("if True:\nprint(\"yes\")", "Expected an indented block")]
+    [TestCase("else:\n    print(\"orphan\")", "no matching 'if'")]
+    [TestCase("if 5:\n    print(\"yes\")", "must evaluate to True or False")]
+    [TestCase("if True:\n    print(\"yes\")\n  print(\"wrong\")", "Indent blocks")]
+    [TestCase("if True:\n    print(\"yes\")\nelse:\n    print(\"no\")\nelif False:\n    print(\"late\")", "cannot follow 'else'")]
+    public void InvalidConditionalsReportErrors(string code, string expectedError)
+    {
+        string result = interpreter.Run(code);
+
+        StringAssert.Contains("Line ", result);
+        StringAssert.Contains(expectedError, result);
+    }
+
     [Test]
     public void ArbitraryFunctionCallsAreRejected()
     {
