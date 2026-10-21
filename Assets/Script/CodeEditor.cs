@@ -10,11 +10,6 @@ public class CodeEditor : MonoBehaviour
     [SerializeField] private TMP_InputField CodeInput;
     [SerializeField] private TMP_Text StatusText;
 
-    /*[Header("Buttons")]
-    public GameObject saveButton;
-    public GameObject loadButton;
-    public GameObject newFileButton;*/
-
     private string desktopFolder;
     private string currentFilePath;
 
