@@ -15,76 +15,124 @@ public class InterpreterTest : MonoBehaviour
 
     public void RunCode()
     {
-        if (CodeInput == null ||
-            OutputText == null ||
-            MissionManager == null ||
-            MissionManager.CurrentMission == null)
+        if (CodeInput == null)
         {
-            Debug.Log("No mission selected or code input missing.");
+            Debug.LogError("Code input is missing.");
             return;
         }
 
+        // No mission selected? Run as a sandbox.
+        if (MissionManager == null ||
+            MissionManager.CurrentMission == null)
+        {
+            RunSandbox();
+            return;
+        }
+
+        RunMissionTests();
+    }
+
+    private void RunSandbox()
+    {
+        string output = interpreter.Run(
+            CodeInput.text,
+            new List<string>()
+        );
+
+        DisplayOutput(output);
+
+        Debug.Log("=== Sandbox Output ===\n" + output);
+    }
+
+    private void RunMissionTests()
+    {
         MissionDefinition mission = MissionManager.CurrentMission;
 
         if (MissionManager.IsCompleted)
         {
-            OutputText.text = "This mission is already completed.";
             Debug.Log("Mission already completed: " + mission.MissionTitle);
             return;
         }
 
-        if (mission.TestCases == null ||
-            mission.TestCases.Count == 0)
+        if (mission.TestCases == null || mission.TestCases.Count == 0)
         {
-            OutputText.text = "This mission has no test cases.";
-            Debug.LogError("Mission has no test cases: " + mission.MissionTitle);
+            Debug.LogError(
+                "Mission has no test cases: " + mission.MissionTitle
+            );
             return;
         }
 
         int passedTests = 0;
         int totalTests = mission.TestCases.Count;
+
+        string displayedOutput = "(No output produced)";
+
         Debug.Log($"=== Running Mission: {mission.MissionTitle} ===");
         Debug.Log("Player code:\n" + CodeInput.text);
 
-        foreach (MissionTestCase testCase in mission.TestCases)
+        for (int i = 0; i < totalTests; i++)
         {
+            MissionTestCase testCase = mission.TestCases[i];
+
             if (testCase == null)
                 continue;
 
-            List<string> inputs = ParseInputs(testCase.Input);
+            List<string> inputs = new List<string>();
+
+            if (!string.IsNullOrEmpty(testCase.Input))
+            {
+                string normalizedInput = testCase.Input
+                    .Replace("\r\n", "\n")
+                    .Replace('\r', '\n');
+
+                inputs.AddRange(normalizedInput.Split('\n'));
+            }
 
             string actualOutput = interpreter.Run(
                 CodeInput.text,
                 inputs
             );
 
-            // The interpreter returns errors as strings.
-            // They must not count as successful output.
-            if (IsInterpreterError(actualOutput))
-                continue;
-
-            if (Normalize(actualOutput) ==
-                Normalize(testCase.ExpectedOutput))
+            if (i == 0)
             {
+                displayedOutput = string.IsNullOrEmpty(actualOutput)
+                    ? "(No output produced)"
+                    : actualOutput;
+            }
+
+            bool isError = actualOutput != null &&
+                (actualOutput.StartsWith(
+                    "Line ", StringComparison.Ordinal) ||
+                 actualOutput.StartsWith(
+                    "Interpreter error:", StringComparison.Ordinal));
+
+            bool passed = !isError &&
+                Normalize(actualOutput) ==
+                Normalize(testCase.ExpectedOutput);
+
+            if (passed)
                 passedTests++;
 
-                Debug.Log(
-                //$"[{(passed ? "PASS" : "FAIL")}] " +
-                $"Test Case {mission.TestCases.IndexOf(testCase) + 1}\n" +
+            Debug.Log(
+                $"[{(passed ? "PASS" : "FAIL")}] Test Case {i + 1}\n" +
                 $"Input:\n{testCase.Input}\n" +
                 $"Expected Output:\n{testCase.ExpectedOutput}\n" +
-                $"Actual Output:\n{actualOutput}");
-            }
+                $"Actual Output:\n{actualOutput}"
+            );
         }
+
+        // Show output first, then the test summary.
+        DisplayOutput(displayedOutput);
+
+        Debug.Log(
+            $"=== Program Output (Test Case 1) ===\n{displayedOutput}"
+        );
 
         bool allPassed = passedTests == totalTests;
 
         Debug.Log(
-            $"=== Mission Result: {passedTests}/{totalTests} tests passed ==="
+            $"=== Test Results: {passedTests}/{totalTests} passed ==="
         );
-
-        OutputText.text =
-            $"Tests passed: {passedTests}/{totalTests}";
 
         if (allPassed)
             Debug.Log($"MISSION COMPLETE: {mission.MissionTitle}");
@@ -94,25 +142,14 @@ public class InterpreterTest : MonoBehaviour
         MissionManager.CheckMissionResult(allPassed);
     }
 
-    private List<string> ParseInputs(string input)
+    private void DisplayOutput(string output)
     {
-        if (string.IsNullOrEmpty(input))
-            return new List<string>();
+        string displayedOutput = string.IsNullOrEmpty(output)
+            ? "(No output produced)"
+            : output;
 
-        string normalized = input
-            .Replace("\r\n", "\n")
-            .Replace('\r', '\n');
-
-        return new List<string>(normalized.Split('\n'));
-    }
-
-    private bool IsInterpreterError(string output)
-    {
-        return output != null &&
-            (output.StartsWith(
-                "Line ", StringComparison.Ordinal) ||
-             output.StartsWith(
-                "Interpreter error:", StringComparison.Ordinal));
+        if (OutputText != null)
+            OutputText.text = displayedOutput;
     }
 
     private string Normalize(string value)
