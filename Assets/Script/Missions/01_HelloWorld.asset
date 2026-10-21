@@ -16,4 +16,6 @@ MonoBehaviour:
   MissionTitle: Hello, World!
   Objective: Write and run a Python script that prints Hello, World! to the terminal.
   Hint: Use the print() function with a string inside quotation marks.
-  ExpectedOutput: Hello, World!
+  TestCases:
+  - Input: 
+    ExpectedOutput: Hello, World!
