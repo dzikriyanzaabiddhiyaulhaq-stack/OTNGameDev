@@ -18,6 +18,9 @@ public class MissionManager : MonoBehaviour
     [SerializeField] private TMP_Text feedbackText;
     [SerializeField] private TMP_Text hintText;
 
+    [Header("Code Editor")]
+    [SerializeField] private TMP_InputField codeInput;
+
     private readonly HashSet<string> completedMissionIds =
         new HashSet<string>();
 
@@ -70,6 +73,9 @@ public class MissionManager : MonoBehaviour
 
         if (objectiveText != null)
             objectiveText.text = mission.Objective;
+
+        if (codeInput != null)
+            codeInput.text = mission.PlaceholderCode;
 
         if (feedbackText != null)
         {

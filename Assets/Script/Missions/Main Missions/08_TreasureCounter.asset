@@ -12,8 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 781add4f9a537653f8c643d0ce1e9dc1, type: 3}
   m_Name: 08_TreasureCounter
   m_EditorClassIdentifier: Assembly-CSharp::MissionDefinition
-  MissionId: 
-  MissionTitle: 
-  Objective: 
-  Hint: 
-  TestCases: []
+  MissionId: T08
+  MissionTitle: Counting Treasure
+  Objective: Start with total = 0. Use a loop to add the numbers 1 through 5, then
+    print the total.
+  Hint: Update total inside the loop. The final answer should be 15.
+  TestCases:
+  - Input: 
+    ExpectedOutput: 15

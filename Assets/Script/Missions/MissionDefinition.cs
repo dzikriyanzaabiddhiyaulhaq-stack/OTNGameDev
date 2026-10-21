@@ -20,6 +20,9 @@ public class MissionDefinition : ScriptableObject
     [TextArea(1, 4)]
     public string Hint;
 
+    [TextArea(4, 4)]
+    public string PlaceholderCode;
+
     [Header("Hidden Test Cases")]
     [Tooltip("Enter each input() value on a separate line.")]
     public List<MissionTestCase> TestCases =

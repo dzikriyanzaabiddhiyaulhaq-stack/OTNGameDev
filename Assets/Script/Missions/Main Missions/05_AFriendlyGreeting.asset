@@ -14,15 +14,25 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MissionDefinition
   MissionId: T05
   MissionTitle: A Friendly Greeting
-  Objective: Ask for the player's name using input(), then print Welcome,  followed
-    by their name and an exclamation mark.
-  Hint: Store the result of input() in a variable and print the greeting.
+  Objective: Ask for the player's name using input(), then print Welcome followed
+    by their name. Use two print statements.
+  Hint: Store the result of input() in a variable and print the greeting using two
+    print statements.
+  PlaceholderCode: 
   TestCases:
   - Input: Abid
-    ExpectedOutput: Welcome, Abid!
+    ExpectedOutput: 'Welcome
+
+      Abid'
   - Input: Badrus
-    ExpectedOutput: Welcome, Badrus!
+    ExpectedOutput: 'Welcome
+
+      Badrus'
   - Input: Benny
-    ExpectedOutput: Welcome, Benny!
+    ExpectedOutput: 'Welcome
+
+      Benny'
   - Input: Fatir
-    ExpectedOutput: Welcome, Fatir!
+    ExpectedOutput: 'Welcome
+
+      Fatir'

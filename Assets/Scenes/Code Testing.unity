@@ -209,7 +209,7 @@ MonoBehaviour:
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
+          m_IntArgument: 4
           m_FloatArgument: 0
           m_StringArgument: 
           m_BoolArgument: 0
@@ -2367,18 +2367,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MissionManager
   missions:
+  - {fileID: 11400000, guid: db30048ae5e69a2f0a960675a8c75987, type: 2}
+  - {fileID: 11400000, guid: 24e2d7a67d0ded07d8eb5837776c426b, type: 2}
+  - {fileID: 11400000, guid: 56f538366b4d0984798be2fe63dd1cd2, type: 2}
+  - {fileID: 11400000, guid: d8788f94a5f7b8e1eaa796773ca54c80, type: 2}
+  - {fileID: 11400000, guid: 049735447f751e24985928bf8698f6d0, type: 2}
+  - {fileID: 11400000, guid: c5ac5e2e98fbe017da8efa6d99c700f1, type: 2}
   - {fileID: 11400000, guid: dba2b2f47cf9c5a4e9877f7dc498599c, type: 2}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
+  - {fileID: 11400000, guid: 68817e0d657a0e881bf6523062db1939, type: 2}
+  - {fileID: 11400000, guid: 475bdb0ec53f3dfa2a5c5bfaff614fbe, type: 2}
   titleText: {fileID: 0}
   objectiveText: {fileID: 0}
   feedbackText: {fileID: 0}
   hintText: {fileID: 0}
+  codeInput: {fileID: 972885114}
 --- !u!4 &1012178994
 Transform:
   m_ObjectHideFlags: 0
