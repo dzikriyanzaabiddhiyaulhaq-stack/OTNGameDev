@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 781add4f9a537653f8c643d0ce1e9dc1, type: 3}
+  m_Name: 05_AFriendlyGreeting
+  m_EditorClassIdentifier: Assembly-CSharp::MissionDefinition
+  MissionId: T05
+  MissionTitle: A Friendly Greeting
+  Objective: Ask for the player's name using input(), then print Welcome,  followed
+    by their name and an exclamation mark.
+  Hint: Store the result of input() in a variable and print the greeting.
+  TestCases:
+  - Input: Abid
+    ExpectedOutput: Welcome, Abid!
+  - Input: Badrus
+    ExpectedOutput: Welcome, Badrus!
+  - Input: Benny
+    ExpectedOutput: Welcome, Benny!
+  - Input: Fatir
+    ExpectedOutput: Welcome, Fatir!
