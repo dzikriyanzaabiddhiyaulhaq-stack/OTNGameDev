@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 781add4f9a537653f8c643d0ce1e9dc1, type: 3}
   m_Name: 02_RememberThings
   m_EditorClassIdentifier: Assembly-CSharp::MissionDefinition
+  SenderImage: {fileID: -1851699049683292325, guid: 74a7291bb9d9016f5b1fb064cfbe27f5, type: 3}
   SenderName: Fatir
   ShortDescription: Let's give your computer something to remember!
   MissionId: T02

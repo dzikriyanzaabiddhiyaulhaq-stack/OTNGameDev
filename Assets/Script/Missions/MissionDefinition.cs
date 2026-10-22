@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 [CreateAssetMenu(
     fileName = "NewMission",
@@ -10,6 +11,7 @@ using UnityEngine;
 public class MissionDefinition : ScriptableObject
 {
     [Header("Mail")]
+    public Sprite SenderImage;
     public string SenderName;
     public string ShortDescription;
 

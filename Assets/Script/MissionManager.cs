@@ -1,10 +1,10 @@
 using System;
 using UnityEngine;
+using UnityEngine.UI;
 using TMPro;
-using Unity.VisualScripting;
 using System.Collections.Generic;
 using NUnit.Framework;
-using Unity.AppUI.UI;
+using Microsoft.Unity.VisualStudio.Editor;
 
 public class MissionManager : MonoBehaviour
 {
@@ -14,6 +14,7 @@ public class MissionManager : MonoBehaviour
         new List<MissionDefinition>();
 
     [Header("Mission UI")]
+    [SerializeField] private UnityEngine.UI.Image senderImage;
     [SerializeField] private TMP_Text titleText;
     [SerializeField] private TMP_Text objectiveText;
     [SerializeField] private TMP_Text[] SenderName;
@@ -21,7 +22,11 @@ public class MissionManager : MonoBehaviour
     [SerializeField] private TMP_Text feedbackText;
     [SerializeField] private TMP_Text hintText;
 
-    [Header("Mail UI")]
+    [Header("Contract List")]
+    [SerializeField] private Transform contractContent;
+    [SerializeField] private GameObject contractPrefab;
+
+    [Header("Mail App")]
     public GameObject Mail;
 
     [Header("Code Editor")]
@@ -60,11 +65,45 @@ public class MissionManager : MonoBehaviour
     private void Start()
     {
         CurrentMissionIndex = -1;
+        PopulateContracts();
         ShowNoMissions();
     }
 
-    public void SelectMission(int index)
+    private void PopulateContracts()
     {
+        for (int i = 0; i < missions.Count; i++)
+        {
+            MissionDefinition mission = missions[i];
+
+            if (mission == null)
+                continue;
+
+            GameObject contractObject = Instantiate(
+                contractPrefab,
+                contractContent
+            );
+
+            MissionListItem item =
+                contractObject.GetComponent<MissionListItem>();
+
+            if (item == null)
+            {
+                Debug.LogError(
+                    "Contract prefab is missing MissionListItem."
+                );
+
+                Destroy(contractObject);
+                continue;
+            }
+
+            item.Initialize(this, mission, i);
+        }
+    }
+
+    public void SelectMission(MissionDefinition mission)
+    {
+        int index = missions.IndexOf(mission);
+
         Debug.Log($"SelectMission called with index: {index}");
         if (index < 0 || index >= missions.Count ||
             missions[index] == null)
@@ -72,15 +111,10 @@ public class MissionManager : MonoBehaviour
 
         CurrentMissionIndex = index;
 
-        MissionDefinition mission = CurrentMission;
-
-        /*if (titleText != null)
+        if (senderImage != null)
         {
-            foreach(TMP_Text textcomponent in titleText)
-            {
-                textcomponent.text = mission.MissionTitle;
-            }
-        }*/
+            senderImage.sprite = mission.SenderImage;
+        }
 
         if (SenderName != null)
         {
