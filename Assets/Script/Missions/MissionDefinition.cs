@@ -9,13 +9,17 @@ using UnityEngine;
 
 public class MissionDefinition : ScriptableObject
 {
+    [Header("Mail")]
+    public string SenderName;
+    public string ShortDescription;
+
     [Header("Identity")]
     public string MissionId;
     public string MissionTitle;
 
     [Header("Player Instructions")]
     [TextArea(2, 5)]
-    public string Objective;
+    public string Objective; // Put this in the detailed description of the mail.
 
     [TextArea(1, 4)]
     public string Hint;

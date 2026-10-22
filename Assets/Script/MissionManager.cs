@@ -4,6 +4,7 @@ using TMPro;
 using Unity.VisualScripting;
 using System.Collections.Generic;
 using NUnit.Framework;
+using Unity.AppUI.UI;
 
 public class MissionManager : MonoBehaviour
 {
@@ -15,8 +16,13 @@ public class MissionManager : MonoBehaviour
     [Header("Mission UI")]
     [SerializeField] private TMP_Text titleText;
     [SerializeField] private TMP_Text objectiveText;
+    [SerializeField] private TMP_Text[] SenderName;
+    [SerializeField] private TMP_Text[] ShortDescription;
     [SerializeField] private TMP_Text feedbackText;
     [SerializeField] private TMP_Text hintText;
+
+    [Header("Mail UI")]
+    public GameObject Mail;
 
     [Header("Code Editor")]
     [SerializeField] private TMP_InputField codeInput;
@@ -68,8 +74,29 @@ public class MissionManager : MonoBehaviour
 
         MissionDefinition mission = CurrentMission;
 
-        if (titleText != null)
-            titleText.text = mission.MissionTitle;
+        /*if (titleText != null)
+        {
+            foreach(TMP_Text textcomponent in titleText)
+            {
+                textcomponent.text = mission.MissionTitle;
+            }
+        }*/
+
+        if (SenderName != null)
+        {
+            foreach(TMP_Text textcomponent in SenderName)
+            {
+                textcomponent.text = mission.SenderName;
+            }
+        }
+        
+        if (ShortDescription != null)
+        {
+            foreach(TMP_Text textcomponent in ShortDescription)
+            {
+                textcomponent.text = mission.ShortDescription;    
+            }
+        }
 
         if (objectiveText != null)
             objectiveText.text = mission.Objective;
@@ -86,22 +113,14 @@ public class MissionManager : MonoBehaviour
 
         if (hintText != null)
             hintText.text = "";
+
+        if (!Mail.activeInHierarchy)
+            Mail.SetActive(true);
     }
 
     private void ShowNoMissions()
     {
-        if (titleText != null)
-            titleText.text = "No Missions Available";
-
-        if (objectiveText != null)
-            objectiveText.text =
-                "Add mission assets to the Mission Manager.";
-
-        if (feedbackText != null)
-            feedbackText.text = "";
-
-        if (hintText != null)
-            hintText.text = "";
+        Mail.SetActive(false);
     }
 
     public void ShowHint()
