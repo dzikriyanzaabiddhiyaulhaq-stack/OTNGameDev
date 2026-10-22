@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Text;
 using System.Threading.Tasks;
 using TMPro;
 using Unity.AI.Navigation.LowLevel;
@@ -11,7 +12,10 @@ public class CodeEditor : MonoBehaviour
     [SerializeField] private TMP_InputField FileNameInput;
     [SerializeField] private TMP_InputField CodeInput;
     [SerializeField] private TMP_Text OverlayText;
+    [SerializeField] private TMP_Text LineNumbers;
     [SerializeField] private TMP_Text StatusText;
+
+    private StringBuilder lineNumberBuilder = new StringBuilder();
 
     private string desktopFolder;
     private string currentFilePath;
@@ -44,6 +48,25 @@ public class CodeEditor : MonoBehaviour
     {
         string highlightedText = SyntaxHighlighter.Highlight(rawText);
         OverlayText.text = highlightedText + "\u200B";
+
+        UpdateLineNumbers(rawText);
+    }
+
+    private void UpdateLineNumbers(string rawText)
+    {
+        int lineCount = 1;
+        for (int i = 0; i < rawText.Length; i++)
+        {
+            if (rawText[i] == '\n') lineCount++;
+        }
+
+        lineNumberBuilder.Clear();
+        for (int i = 1; i <= lineCount; i++)
+        {
+            lineNumberBuilder.Append(i).Append("\n");
+        }
+
+        LineNumbers.text = lineNumberBuilder.ToString();
     }
 
     private string GetSafeFilePath()
