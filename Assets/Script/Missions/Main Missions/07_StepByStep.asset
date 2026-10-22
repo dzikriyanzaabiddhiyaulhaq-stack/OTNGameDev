@@ -12,10 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 781add4f9a537653f8c643d0ce1e9dc1, type: 3}
   m_Name: 07_StepByStep
   m_EditorClassIdentifier: Assembly-CSharp::MissionDefinition
+  SenderName: 
+  ShortDescription: 
   MissionId: T07
   MissionTitle: Step By Step
   Objective: Use a for loop to print the numbers from 0 to 4, each on its own line.
   Hint: 'Try for i in range(5):'
+  PlaceholderCode: 
   TestCases:
   - Input: 
     ExpectedOutput: '0

@@ -13,10 +13,18 @@ MonoBehaviour:
   m_Name: 01_HelloWorld
   m_EditorClassIdentifier: Assembly-CSharp::MissionDefinition
   SenderName: Fatir
-  ShortDescription: Let's get started!
+  ShortDescription: Long time no see! Let's get started!
   MissionId: T01
   MissionTitle: Hello, World!
-  Objective: Write and run a Python script that prints Hello, World! to the terminal.
+  Objective: 'Hey there! It''s been a while since we talked, so how about I test
+    you a little?
+
+    Just write a Python code that prints "Hello, World!" to the
+    terminal. Easy enough for you, right?
+
+
+    By the way, you should use 4 spaces
+    instead of tabs.'
   Hint: Use the print() function with a string inside quotation marks.
   PlaceholderCode: 
   TestCases:

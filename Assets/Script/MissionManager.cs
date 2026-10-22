@@ -107,8 +107,8 @@ public class MissionManager : MonoBehaviour
         if (feedbackText != null)
         {
             feedbackText.text = IsCompleted
-                ? "Mission already completed!"
-                : "Mission in progress.";
+                ? "Contract already completed!"
+                : "Contract in progress.";
         }
 
         if (hintText != null)
