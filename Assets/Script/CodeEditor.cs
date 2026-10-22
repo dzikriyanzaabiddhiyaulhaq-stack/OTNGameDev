@@ -98,7 +98,7 @@ public class CodeEditor : MonoBehaviour
             currentFilePath = path;
 
             FileNameInput.text = Path.GetFileName(path);
-            SetStatus("Saved" + Path.GetFileName(path));
+            SetStatus("Saved " + Path.GetFileName(path));
         }
         catch (Exception ex)
         {
