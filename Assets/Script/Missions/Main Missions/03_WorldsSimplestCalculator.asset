@@ -10,10 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 781add4f9a537653f8c643d0ce1e9dc1, type: 3}
-  m_Name: 01_HelloWorld
+  m_Name: 03_WorldsSimplestCalculator
   m_EditorClassIdentifier: Assembly-CSharp::MissionDefinition
-  MissionId: 01
-  MissionTitle: Hello, World!
-  Objective: Write and run a Python script that prints Hello, World! to the terminal.
-  Hint: Use the print() function with a string inside quotation marks.
-  ExpectedOutput: Hello, World!
+  MissionId: T03
+  MissionTitle: World's Simplest Calculator
+  Objective: Calculate 7 + 5 and print the result.
+  Hint: Python can evaluate arithmetic expressions inside print().
+  TestCases:
+  - Input: 
+    ExpectedOutput: 12
