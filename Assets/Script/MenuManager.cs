@@ -5,12 +5,12 @@ public class MenuManager : MonoBehaviour
 {
     public void StartGame()
     {
-        SceneManager.LoadScene("menu tes");
+        SceneManager.LoadScene("Desktop");
     }
 
     public void ExitGame()
     {
-        SceneManager.LoadScene("menu home");
+        SceneManager.LoadScene("Title");
     }
     public void QuitGame()
     {
