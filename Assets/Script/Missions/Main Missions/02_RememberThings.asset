@@ -12,11 +12,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 781add4f9a537653f8c643d0ce1e9dc1, type: 3}
   m_Name: 02_RememberThings
   m_EditorClassIdentifier: Assembly-CSharp::MissionDefinition
+  SenderName: Fatir
+  ShortDescription: Let's give your computer something to remember!
   MissionId: T02
   MissionTitle: Remembering Things
-  Objective: Create a variable named language, assign it the string "Python", and
-    print the variable.
+  Objective: "Computers are pretty good at remembering things\u2014as long as you
+    tell them what to remember! Create a variable named language, store \"Python\"
+    in it, and print its value."
   Hint: Use language = "Python" to assign the value.
+  PlaceholderCode: 
   TestCases:
   - Input: 
     ExpectedOutput: Python

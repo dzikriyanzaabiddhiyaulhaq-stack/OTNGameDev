@@ -12,10 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 781add4f9a537653f8c643d0ce1e9dc1, type: 3}
   m_Name: 03_WorldsSimplestCalculator
   m_EditorClassIdentifier: Assembly-CSharp::MissionDefinition
+  SenderName: Fatir
+  ShortDescription: Let's give your computer something to remember!
   MissionId: T03
   MissionTitle: World's Simplest Calculator
-  Objective: Calculate 7 + 5 and print the result.
+  Objective: Who needs a calculator when you have Python? Calculate 7 + 5 and show
+    the result. Let's put those computational skills to the test!
   Hint: Python can evaluate arithmetic expressions inside print().
+  PlaceholderCode: 
   TestCases:
   - Input: 
     ExpectedOutput: 12

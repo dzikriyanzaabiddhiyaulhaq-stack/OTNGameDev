@@ -12,10 +12,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 781add4f9a537653f8c643d0ce1e9dc1, type: 3}
   m_Name: 05_AFriendlyGreeting
   m_EditorClassIdentifier: Assembly-CSharp::MissionDefinition
+  SenderName: Fatir
+  ShortDescription: A little friendliness goes a long way. Let's make a program that
+    welcomes people!
   MissionId: T05
   MissionTitle: A Friendly Greeting
-  Objective: Ask for the player's name using input(), then print Welcome followed
-    by their name. Use two print statements.
+  Objective: 'A good program knows how to make someone feel welcome! Ask the user
+    for their name, then greet them by printing Welcome followed by their name!
+
+
+    Use
+    two print statements!'
   Hint: Store the result of input() in a variable and print the greeting using two
     print statements.
   PlaceholderCode: 

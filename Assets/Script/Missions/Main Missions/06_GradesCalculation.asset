@@ -12,11 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 781add4f9a537653f8c643d0ce1e9dc1, type: 3}
   m_Name: 06_GradesCalculation
   m_EditorClassIdentifier: Assembly-CSharp::MissionDefinition
+  SenderName: Fatir
+  ShortDescription: It's time to check those grades. Can you tell who's passed?
   MissionId: T06
   MissionTitle: Calculating Grades
-  Objective: Read a score using input(). Print Pass if the score is at least 50;
-    otherwise, print Try Again.
+  Objective: Results are in! Ask the user for their score. If it's 50 or higher,
+    print Pass. Otherwise, print Try Again. Every point counts!
   Hint: Use int(input()) to read a number, then use if and else.
+  PlaceholderCode: 
   TestCases:
   - Input: 75
     ExpectedOutput: Pass

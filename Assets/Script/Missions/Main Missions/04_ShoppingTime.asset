@@ -12,11 +12,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 781add4f9a537653f8c643d0ce1e9dc1, type: 3}
   m_Name: 04_ShoppingTime
   m_EditorClassIdentifier: Assembly-CSharp::MissionDefinition
+  SenderName: Fatir
+  ShortDescription: Let's go shopping! Can you figure out the total bill?
   MissionId: T04
   MissionTitle: Time For Shopping!
-  Objective: Store the prices 15 and 20 in variables named item1 and item2. Print
-    their combined price.
+  Objective: Shopping spree! You've got two items costing 15 and 20. Store their
+    prices in item1 and item2, then calculate and print the total. No checkout counter
+    required!
   Hint: Add the two variables and print the result.
+  PlaceholderCode: 
   TestCases:
   - Input: 
     ExpectedOutput: 35

@@ -12,11 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 781add4f9a537653f8c643d0ce1e9dc1, type: 3}
   m_Name: 07_StepByStep
   m_EditorClassIdentifier: Assembly-CSharp::MissionDefinition
-  SenderName: 
-  ShortDescription: 
+  SenderName: Fatir
+  ShortDescription: Doing the same thing over and over? There's a better way!
   MissionId: T07
   MissionTitle: Step By Step
-  Objective: Use a for loop to print the numbers from 0 to 4, each on its own line.
+  Objective: Why do things five times when you can tell Python to do them for you?
+    Use a for loop to print the numbers from 0 to 4, one number per line. Let's put
+    repetition to good use!
   Hint: 'Try for i in range(5):'
   PlaceholderCode: 
   TestCases:
