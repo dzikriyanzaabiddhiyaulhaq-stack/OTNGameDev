@@ -1,6 +1,8 @@
 using System;
 using System.IO;
+using System.Threading.Tasks;
 using TMPro;
+using Unity.AI.Navigation.LowLevel;
 using UnityEngine;
 
 public class CodeEditor : MonoBehaviour
@@ -8,6 +10,7 @@ public class CodeEditor : MonoBehaviour
     [Header("Editor UI")]
     [SerializeField] private TMP_InputField FileNameInput;
     [SerializeField] private TMP_InputField CodeInput;
+    [SerializeField] private TMP_Text OverlayText;
     [SerializeField] private TMP_Text StatusText;
 
     private string desktopFolder;
@@ -15,6 +18,11 @@ public class CodeEditor : MonoBehaviour
 
     void Awake()
     {
+        CodeInput.textComponent.color = new Color(1, 1, 1, 1);
+        CodeInput.textComponent.faceColor = new Color(0, 0, 0, 0);
+
+        CodeInput.onValueChanged.AddListener(OnTextChanged);
+
         string documentsFolder = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
         if (string.IsNullOrWhiteSpace(documentsFolder))
         {
@@ -30,6 +38,12 @@ public class CodeEditor : MonoBehaviour
         Directory.CreateDirectory(desktopFolder);
 
         NewFile();
+    }
+
+    private void OnTextChanged(string rawText)
+    {
+        string highlightedText = SyntaxHighlighter.Highlight(rawText);
+        OverlayText.text = highlightedText + "\u200B";
     }
 
     private string GetSafeFilePath()
