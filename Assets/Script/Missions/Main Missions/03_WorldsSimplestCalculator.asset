@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: 03_WorldsSimplestCalculator
   m_EditorClassIdentifier: Assembly-CSharp::MissionDefinition
   SenderImage: {fileID: -1851699049683292325, guid: 74a7291bb9d9016f5b1fb064cfbe27f5, type: 3}
-  SenderName: Fatir
+  SenderName: Tutorial Man
   ShortDescription: Time to do some math! Let's see if your computer can handle it.
   MissionId: T03
   MissionTitle: World's Simplest Calculator
@@ -21,6 +21,7 @@ MonoBehaviour:
     the result. Let's put those computational skills to the test!
   Hint: Python can evaluate arithmetic expressions inside print().
   PlaceholderCode: 
+  Solution: print(7 + 5)
   TestCases:
   - Input: 
     ExpectedOutput: 12

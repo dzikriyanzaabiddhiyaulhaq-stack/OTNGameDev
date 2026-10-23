@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: 08_TreasureCounter
   m_EditorClassIdentifier: Assembly-CSharp::MissionDefinition
   SenderImage: {fileID: -1851699049683292325, guid: 74a7291bb9d9016f5b1fb064cfbe27f5, type: 3}
-  SenderName: Fatir
+  SenderName: Tutorial Man
   ShortDescription: A treasure hunt awaits! Let's count our loot with the power of
     loops.
   MissionId: T08
@@ -23,6 +23,7 @@ MonoBehaviour:
     so don''t leave any behind!'
   Hint: Update total inside the loop. The final answer should be 15.
   PlaceholderCode: 
+  Solution: "total = 0\n\nfor i in range(1, 6):\n   total = total + i\n\nprint(total)"
   TestCases:
   - Input: 
     ExpectedOutput: 15

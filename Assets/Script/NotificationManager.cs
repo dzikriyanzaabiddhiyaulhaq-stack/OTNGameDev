@@ -5,6 +5,7 @@ using UnityEngine;
 public class NotificationManager : MonoBehaviour
 {
     [Header("UI Elements")]
+    [SerializeField] private GameObject NotificationPanel; 
     [SerializeField] private TMP_Text UIText;
 
     private MissionManager missionManager;
@@ -13,7 +14,7 @@ public class NotificationManager : MonoBehaviour
 
     private void Start()
     {
-        UIText.text = "New contracts available";
+        NotificationPanel.SetActive(false);
 
         missionManager = FindFirstObjectByType<MissionManager>();
 
@@ -38,6 +39,8 @@ public class NotificationManager : MonoBehaviour
         missionIndex = index;
 
         UIText.text = $"New email from: {mission.SenderName}";
+
+        NotificationPanel.SetActive(true);
     }
 
     private void OnDestroy()
@@ -50,6 +53,6 @@ public class NotificationManager : MonoBehaviour
 
     public void CloseNotification()
     {
-        // Play animation here...
+        NotificationPanel.SetActive(false);
     }
 }

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: 02_RememberThings
   m_EditorClassIdentifier: Assembly-CSharp::MissionDefinition
   SenderImage: {fileID: -1851699049683292325, guid: 74a7291bb9d9016f5b1fb064cfbe27f5, type: 3}
-  SenderName: Fatir
+  SenderName: Tutorial Man
   ShortDescription: Let's give your computer something to remember!
   MissionId: T02
   MissionTitle: Remembering Things
@@ -22,6 +22,9 @@ MonoBehaviour:
     in it, and print its value."
   Hint: Use language = "Python" to assign the value.
   PlaceholderCode: 
+  Solution: 'language = "Python"
+
+    print(language)'
   TestCases:
   - Input: 
     ExpectedOutput: Python

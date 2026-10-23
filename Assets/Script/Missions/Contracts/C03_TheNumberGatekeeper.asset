@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 781add4f9a537653f8c643d0ce1e9dc1, type: 3}
+  m_Name: C03_TheNumberGatekeeper
+  m_EditorClassIdentifier: Assembly-CSharp::MissionDefinition
+  SenderImage: {fileID: 3504903082299164162, guid: 56563a845578db5ba9a8cdf35bfdec35, type: 3}
+  SenderName: Badrus
+  ShortDescription: Not every number gets through! Let's see if your computer can
+    tell the difference.
+  MissionId: C03
+  MissionTitle: The Number Gatekeeper
+  Objective: A mysterious gate stands before you. Only numbers greater than zero
+    can earn the Positive label! Read a number and report whether it passes the gate.
+  Hint: Use if and else to check whether the number is greater than 0.
+  PlaceholderCode: "number = int(input())\n\nif number > 0:\n    print(\"Positive\")\nelse:\n   
+    print(\"Not positive\")"
+  Solution: "number = int(input())\n\nif number > 0:\n    print(\"Positive\")\nelse:\n   
+    print(\"Not positive\")"
+  TestCases:
+  - Input: 5
+    ExpectedOutput: Positive
+  - Input: 0
+    ExpectedOutput: Not positive
+  - Input: -2
+    ExpectedOutput: Not positive

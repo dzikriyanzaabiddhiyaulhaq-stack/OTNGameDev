@@ -29,6 +29,9 @@ public class MissionDefinition : ScriptableObject
     [TextArea(4, 4)]
     public string PlaceholderCode;
 
+    [TextArea(4, 4)]
+    public string Solution;
+
     [Header("Hidden Test Cases")]
     [Tooltip("Enter each input() value on a separate line.")]
     public List<MissionTestCase> TestCases =

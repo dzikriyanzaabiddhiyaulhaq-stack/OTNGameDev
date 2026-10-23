@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: 04_ShoppingTime
   m_EditorClassIdentifier: Assembly-CSharp::MissionDefinition
   SenderImage: {fileID: -1851699049683292325, guid: 74a7291bb9d9016f5b1fb064cfbe27f5, type: 3}
-  SenderName: Fatir
+  SenderName: Tutorial Man
   ShortDescription: Let's go shopping! Can you figure out the total bill?
   MissionId: T04
   MissionTitle: Time For Shopping!
@@ -22,6 +22,11 @@ MonoBehaviour:
     required!
   Hint: Add the two variables and print the result.
   PlaceholderCode: 
+  Solution: 'item1 = 15
+
+    item2 = 20
+
+    print(item1 + item2'
   TestCases:
   - Input: 
     ExpectedOutput: 35

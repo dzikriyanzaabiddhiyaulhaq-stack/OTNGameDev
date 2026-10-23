@@ -8,6 +8,9 @@ using Unity.VisualScripting;
 
 public class MissionManager : MonoBehaviour
 {
+    // This code is a complete clusterfuck.
+    // Don't rely too much on AI to do your work, kids.
+
     [Header("Missions")]
     [SerializeField]
     private List<MissionDefinition> missions =
@@ -20,7 +23,6 @@ public class MissionManager : MonoBehaviour
     [SerializeField] private TMP_Text[] SenderName;
     [SerializeField] private TMP_Text[] ShortDescription;
     [SerializeField] private TMP_Text feedbackText;
-    [SerializeField] private TMP_Text hintText;
 
     [Header("Contract List")]
     [SerializeField] private Transform contractContent;
@@ -28,6 +30,8 @@ public class MissionManager : MonoBehaviour
 
     [Header("Mail App")]
     public GameObject Mail;
+    public GameObject HintSolutionScrollView;
+    [SerializeField] private TMP_Text HintSolutionText;
 
     [Header("Code Editor")]
     [SerializeField] private TMP_InputField codeInput;
@@ -37,6 +41,16 @@ public class MissionManager : MonoBehaviour
 
     public event Action<MissionManager, MissionDefinition, int>
     MissionAccepted;
+
+    private enum HintSolutionMode
+    {
+        None,
+        Hint,
+        Solution
+    }
+    
+    private HintSolutionMode currentHintSolutionMode =
+        HintSolutionMode.None;
 
     public int CurrentMissionIndex { get; private set; }
 
@@ -148,8 +162,8 @@ public class MissionManager : MonoBehaviour
                 : "Contract in progress.";
         }
 
-        if (hintText != null)
-            hintText.text = "";
+        if (HintSolutionText != null)
+            HintSolutionText.text = "";
 
         if (!Mail.activeInHierarchy)
             Mail.SetActive(true);
@@ -168,11 +182,46 @@ public class MissionManager : MonoBehaviour
         Mail.SetActive(false);
     }
 
-    public void ShowHint()
+    public void ToggleHint()
     {
-        if (CurrentMission != null && hintText != null)
-            hintText.text = CurrentMission.Hint;
+        if (CurrentMissionIndex < 0 ||
+        CurrentMissionIndex >= missions.Count)
+        return;
+
+        MissionDefinition mission = missions[CurrentMissionIndex];
+
+        if (currentHintSolutionMode == HintSolutionMode.Hint)
+        {
+            HintSolutionScrollView.SetActive(false);
+            currentHintSolutionMode = HintSolutionMode.None;
+            return;
+        }
+
+        HintSolutionText.text = mission.Hint;
+        HintSolutionScrollView.SetActive(true);
+        currentHintSolutionMode = HintSolutionMode.Hint;
     }
+
+    public void ToggleSolution()
+    {
+        if (CurrentMissionIndex < 0 ||
+        CurrentMissionIndex >= missions.Count)
+            return;
+
+        MissionDefinition mission = missions[CurrentMissionIndex];
+
+        if (currentHintSolutionMode == HintSolutionMode.Solution)
+        {
+            HintSolutionScrollView.SetActive(false);
+            currentHintSolutionMode = HintSolutionMode.None;
+            return;
+        }
+
+        HintSolutionText.text = mission.Solution;
+        HintSolutionScrollView.SetActive(true);
+        currentHintSolutionMode = HintSolutionMode.Solution;
+    }
+
 
     private void UpdateAcceptedPanel()
     {

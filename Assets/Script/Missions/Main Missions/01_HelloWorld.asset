@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: 01_HelloWorld
   m_EditorClassIdentifier: Assembly-CSharp::MissionDefinition
   SenderImage: {fileID: -1851699049683292325, guid: 74a7291bb9d9016f5b1fb064cfbe27f5, type: 3}
-  SenderName: Fatir
+  SenderName: Tutorial Man
   ShortDescription: Long time no see! Let's get started!
   MissionId: T01
   MissionTitle: Hello, World!
@@ -28,6 +28,7 @@ MonoBehaviour:
     instead of tabs.'
   Hint: Use the print() function with a string inside quotation marks.
   PlaceholderCode: 
+  Solution: print("Hello, World!")
   TestCases:
   - Input: 
     ExpectedOutput: Hello, World!

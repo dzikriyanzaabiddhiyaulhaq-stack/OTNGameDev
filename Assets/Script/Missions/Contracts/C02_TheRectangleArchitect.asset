@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 781add4f9a537653f8c643d0ce1e9dc1, type: 3}
+  m_Name: C02_TheRectangleArchitect
+  m_EditorClassIdentifier: Assembly-CSharp::MissionDefinition
+  SenderImage: {fileID: 6895015803985679519, guid: 99fa9207cee7259378196b1da6328ed1, type: 3}
+  SenderName: Benny
+  ShortDescription: Time to build some shapes! Let's see if your computer can calculate
+    the area.
+  MissionId: C02
+  MissionTitle: The Rectangle Architect
+  Objective: You're the architect, and the blueprint is a rectangle! Read its length
+    and width, then calculate its area. Let's make sure every inch counts!
+  Hint: Area is length multiplied by width.
+  PlaceholderCode: 'length = int(input())
+
+    width = 5
+
+    print(length + width)'
+  Solution: 'length = int(input())
+
+    width = 5
+
+    print(length * width)'
+  TestCases:
+  - Input: 4
+    ExpectedOutput: 20
+  - Input: 3
+    ExpectedOutput: 15
+  - Input: 0
+    ExpectedOutput: 0

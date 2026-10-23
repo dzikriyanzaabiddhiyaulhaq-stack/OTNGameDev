@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: 06_GradesCalculation
   m_EditorClassIdentifier: Assembly-CSharp::MissionDefinition
   SenderImage: {fileID: -1851699049683292325, guid: 74a7291bb9d9016f5b1fb064cfbe27f5, type: 3}
-  SenderName: Fatir
+  SenderName: Tutorial Man
   ShortDescription: It's time to check those grades. Can you tell who's passed?
   MissionId: T06
   MissionTitle: Calculating Grades
@@ -21,6 +21,8 @@ MonoBehaviour:
     print Pass. Otherwise, print Try Again. Every point counts!
   Hint: Use int(input()) to read a number, then use if and else.
   PlaceholderCode: 
+  Solution: "score = int(input())\n\nif score >= 50:\n    print(\"Pass\")\nelse:\n   
+    print(\"Try Again\")"
   TestCases:
   - Input: 75
     ExpectedOutput: Pass

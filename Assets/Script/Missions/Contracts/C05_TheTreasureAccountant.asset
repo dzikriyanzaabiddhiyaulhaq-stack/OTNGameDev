@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 781add4f9a537653f8c643d0ce1e9dc1, type: 3}
+  m_Name: C05_TheTreasureAccountant
+  m_EditorClassIdentifier: Assembly-CSharp::MissionDefinition
+  SenderImage: {fileID: 3379421840959570492, guid: 87bb2e880e26a61218eb8fd228e6b1cc, type: 3}
+  SenderName: Hafizhul
+  ShortDescription: Every coin counts! Let's see if your computer can keep track
+    of the loot.
+  MissionId: C05
+  MissionTitle: The Treasure Accountant
+  Objective: Another treasure chest, another pile of coins! Read a number n, then
+    add every integer from 1 through n to a running total. Print the final sum. Don't
+    miss a single coin!
+  Hint: Start total at 0 and number at 1. Keep adding while number is at most n.
+  PlaceholderCode: "n = int(input())\nnumber = 1\ntotal = 0\n\nwhile number <= n:\n   
+    total = total + number\n    number = number + 1\n\nprint(total)"
+  Solution: "n = int(input())\nnumber = 1\ntotal = 0\n\nwhile number <= n:\n    total
+    = total + number\n    number = number + 1\n\nprint(total)"
+  TestCases:
+  - Input: 5
+    ExpectedOutput: 13
+  - Input: 3
+    ExpectedOutput: 6
+  - Input: 1
+    ExpectedOutput: 1
