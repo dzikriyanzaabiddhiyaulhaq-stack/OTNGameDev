@@ -10,6 +10,7 @@ public class MissionListItem : MonoBehaviour
     [SerializeField] private TMP_Text senderName;
     [SerializeField] private TMP_Text descriptionText;
     [SerializeField] private GameObject finishedPanel;
+    [SerializeField] private GameObject acceptedPanel;
 
     private MissionManager missionManager;
     private MissionDefinition mission;
@@ -44,6 +45,16 @@ public class MissionListItem : MonoBehaviour
     {
         if (missionManager != null && mission != null)
             missionManager.SelectMission(mission);
+    }
+
+    public void SetAccepted(bool isAccepted)
+    {
+        acceptedPanel.SetActive(isAccepted);
+    }
+
+    public MissionDefinition GetMission()
+    {
+        return mission;
     }
 
     private void RefreshCompletion()

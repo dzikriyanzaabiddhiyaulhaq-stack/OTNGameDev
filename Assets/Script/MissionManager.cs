@@ -4,7 +4,7 @@ using UnityEngine.UI;
 using TMPro;
 using System.Collections.Generic;
 using NUnit.Framework;
-using Microsoft.Unity.VisualStudio.Editor;
+using Unity.VisualScripting;
 
 public class MissionManager : MonoBehaviour
 {
@@ -34,6 +34,9 @@ public class MissionManager : MonoBehaviour
 
     private readonly HashSet<string> completedMissionIds =
         new HashSet<string>();
+
+    public event Action<MissionManager, MissionDefinition, int>
+    MissionAccepted;
 
     public int CurrentMissionIndex { get; private set; }
 
@@ -150,6 +153,14 @@ public class MissionManager : MonoBehaviour
 
         if (!Mail.activeInHierarchy)
             Mail.SetActive(true);
+
+        UpdateAcceptedPanel();
+
+        MissionAccepted?.Invoke(
+            this,
+            missions[index],
+            index
+        );
     }
 
     private void ShowNoMissions()
@@ -161,6 +172,23 @@ public class MissionManager : MonoBehaviour
     {
         if (CurrentMission != null && hintText != null)
             hintText.text = CurrentMission.Hint;
+    }
+
+    private void UpdateAcceptedPanel()
+    {
+        foreach (Transform child in contractContent)
+    {
+        MissionListItem item =
+            child.GetComponent<MissionListItem>();
+
+        if (item == null)
+            continue;
+
+        bool isAccepted =
+            missions.IndexOf(item.GetMission()) == CurrentMissionIndex;
+
+        item.SetAccepted(isAccepted);
+        }
     }
 
     public void CheckMissionResult(bool passed)
