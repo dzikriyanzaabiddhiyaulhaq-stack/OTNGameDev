@@ -174,13 +174,13 @@ RectTransform:
   - {fileID: 6969840298582987850}
   - {fileID: 8028557242199044921}
   - {fileID: 3035643653067154194}
-  - {fileID: 253534000581787556}
   - {fileID: 3468531992116368459}
+  - {fileID: 253534000581787556}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 995.008, y: 439.89923}
+  m_AnchoredPosition: {x: 1104.5771, y: 486.17892}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &8966848321043533068

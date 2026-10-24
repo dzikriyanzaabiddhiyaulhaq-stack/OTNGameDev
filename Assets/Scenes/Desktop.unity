@@ -13684,7 +13684,7 @@ MonoBehaviour:
     childIndex: 0
     clickButton: {fileID: 0}
     errorTarget: {fileID: 0}
-  showOnStart: 1
+  showOnStart: 0
   showDelay: 1
   afterClickDelay: 2
   holdSeconds: 4
