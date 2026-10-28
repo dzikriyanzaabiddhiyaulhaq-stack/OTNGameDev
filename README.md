@@ -1,6 +1,6 @@
 # 404: Title Not Found
-## A Short Game Where You Work As a Python Developer.
-### 2026 OTN Submission.
+***A Short Game Where You Work As a Python Developer.***
+*2026 OTN Submission.*
 
 ⚠️ **COMPILED GAME NOT INCLUDED. YOU NEED TO COMPILE IT YOURSELF.**
 
