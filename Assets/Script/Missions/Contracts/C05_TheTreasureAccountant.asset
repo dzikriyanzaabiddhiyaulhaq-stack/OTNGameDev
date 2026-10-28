@@ -28,7 +28,7 @@ MonoBehaviour:
     = total + number\n    number = number + 1\n\nprint(total)"
   TestCases:
   - Input: 5
-    ExpectedOutput: 13
+    ExpectedOutput: 15
   - Input: 3
     ExpectedOutput: 6
   - Input: 1

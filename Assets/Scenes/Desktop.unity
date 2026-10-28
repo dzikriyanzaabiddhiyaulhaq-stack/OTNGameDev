@@ -13686,7 +13686,7 @@ MonoBehaviour:
     errorTarget: {fileID: 0}
   showOnStart: 0
   showDelay: 1
-  afterClickDelay: 2
+  afterClickDelay: 1
   holdSeconds: 4
   resultWait: 1
   successKeyword: berhasil
